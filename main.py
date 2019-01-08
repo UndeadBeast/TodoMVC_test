@@ -10,7 +10,7 @@ import page
 # TODO: divide test to several
 
 
-class LonelyTestCase(unittest.TestCase):
+class UseCaseScenario(unittest.TestCase):
     def setUp(self):
         config = configparser.ConfigParser()
         config.read('config.ini')
@@ -27,62 +27,38 @@ class LonelyTestCase(unittest.TestCase):
 
         self.main_page = page.ToDoPage(self.driver, self.wait_timeout, self.input_delay)
 
-    def test_add(self):
+    def test_scenario(self):
         main_page = self.main_page
-        assert main_page.is_title_exists(), "Unable to load page"
-        time.sleep(3)
-        self.assertTrue(main_page.add_element(u"1st element"), "Troubles adding 1st element")
-        self.assertTrue(main_page.add_element(u"2nd element (1234567890.,;:’”\\/*-+)"), "Troubles adding 2st element")
-        self.assertTrue(main_page.add_element(u"3rd element (!@#$%^&()_+=~`<>{}:|)"), "Troubles adding 3st element")
-        self.assertTrue(main_page.add_element(u"4th element (☺☻♥♦♀♂)"), "Troubles adding 4st element")
-        self.assertEqual(main_page.count_element_in_list()
-                         , (4, 4, 0)
-                         , "Amount of elements not as expected: (All, Active, Done)")
-
-        self.assertTrue(main_page.delete_single_element("4th element (☺☻♥♦♀♂)"), "Element #4 wasn't deleted")
-        self.assertTrue(main_page.mark_single_element("3rd element (!@#$%^&()_+=~`<>{}:|)"), "Element #3 wasn't marked")
-        self.assertEqual(main_page.count_element_in_list()
-                         , (3, 2, 1)
-                         , "Amount of elements not as expected: (All, Active, Done)")
-
-        self.assertTrue(main_page.switch_to_active())
-        self.assertFalse(main_page.is_element_visible("3rd element (!@#$%^&()_+=~`<>{}:|)")
-                         , "Completed element visible in Active list")
-
-        self.assertTrue(main_page.delete_all_completed_elements(), "Elements are still present or button visible")
-        self.assertEqual(main_page.count_element_in_list()
-                         , (2, 2, 0)
-                         , "Amount of elements not as expected: (All, Active, Done)")
-
-        self.assertTrue(main_page.add_element(u"5th element (1234567890.,;:’”\\/*-+)"))
-        self.assertTrue(main_page.add_element(u"!@#$%^&()_+=~`<>{}:|)"))
-        self.assertTrue(main_page.add_element(u"7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂)"))
-        self.assertEqual(main_page.count_element_in_list()
-                         , (5, 5, 0)
-                         , "Amount of elements not as expected: (All, Active, Done)")
-
-        self.assertTrue(main_page.switch_to_all())
-        self.assertTrue(main_page.edit_element("7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂)"
-                                               , "7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂) edited")
-                        , "Edition unsuccessfully")
-
-        self.assertTrue(main_page.mark_all(), "All elements were not marked")
-        self.assertTrue(main_page.switch_to_done())
-        self.assertEqual(main_page.count_element_in_list()
-                         , (5, 0, 5)
-                         , "Amount of elements not as expected: (All, Active, Done)")
-
-        self.assertTrue(main_page.edit_element("7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂) edited"
-                                               , "7th element edited%2 (Хєллоу ВорлдЪ ☺☻♥♦♀♂)")
-                        , "Edition unsuccessfully")
-        self.assertTrue(main_page.mark_all(), "All elements were not marked")
-        self.assertTrue(main_page.switch_to_all())
-        self.assertEqual(main_page.count_element_in_list()
-                         , (5, 5, 0)
-                         , "Amount of elements not as expected: (All, Active, Done)")
+        main_page.add_element(u"1st element")
+        main_page.add_element(u"2nd element (1234567890.,;:’”\\/*-+)")
+        main_page.add_element(u"3rd element (!@#$%^&()_+=~`<>{}:|)")
+        main_page.add_element(u"4th element (☺☻♥♦♀♂)")
+        main_page.verify_elements_in_list(4, 4, 0)
+        main_page.delete_single_element("4th element (☺☻♥♦♀♂)")
+        main_page.mark_single_element("3rd element (!@#$%^&()_+=~`<>{}:|)")
+        main_page.verify_elements_in_list(3, 2, 1)
+        main_page.switch_to_active()
+        main_page.is_element_visible("3rd element (!@#$%^&()_+=~`<>{}:|)", should_be_visisble=False)
+        main_page.delete_all_completed_elements()
+        main_page.verify_elements_in_list(2, 2, 0)
+        main_page.add_element(u"5th element (1234567890.,;:’”\\/*-+)")
+        main_page.add_element(u"6th element (!@#$%^&()_+=~`<>{}:|)")
+        main_page.add_element(u"7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂)")
+        main_page.verify_elements_in_list(5, 5, 0)
+        main_page.switch_to_all()
+        main_page.edit_element("7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂)"
+                               , "7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂) edited")
+        main_page.mark_all()
+        main_page.switch_to_done()
+        main_page.verify_elements_in_list(5, 0, 5)
+        main_page.edit_element("7th element (Хєллоу ВорлдЪ ☺☻♥♦♀♂) edited"
+                               , "7th element edited%2 (Хєллоу ВорлдЪ ☺☻♥♦♀♂)")
+        main_page.mark_all()
+        main_page.switch_to_all()
+        main_page.verify_elements_in_list(5, 5, 0)
 
     def tearDown(self):
-        self.driver.quit()
+        self.main_page.destroy()
         self.assertEqual([], self.verificationErrors)
 
 
